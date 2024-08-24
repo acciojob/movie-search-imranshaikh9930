@@ -2,29 +2,43 @@
 import React,{useState,useEffect} from "react";
 import './../styles/App.css';
 
+
 const App = () => {
   const [result,setResult] = useState([]);
   const [input,setInput] = useState("");
   const [error,setError] = useState("");
   const apiKey = "99eb9fd1";
 
-  const handleSearch = ()=>{
-    try {
-      
-      const apiUrl = `https://www.omdbapi.com/?apikey=${apiKey}&s=${input}`;
-     fetch(apiUrl)
-     .then((res)=>res.json())
-     .then((data)=>{
-        console.log(data.Search);
-      setResult(data.Search)})
-      
-    } catch (error) {
-        console.log(error);
-        setError(error);
-    }
+  const handleSearch = (e) => {
+    e.preventDefault();
 
-  }
+    // Clear previous results and errors
+    setResult([]);
+    setError("");
 
+    const apiUrl = `https://www.omdbapi.com/?apikey=${apiKey}&s=${encodeURIComponent(
+      input.trim()
+    )}`;
+
+    fetch(apiUrl)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.Response === "True") {
+         
+          setResult(data.Search);
+          setError("");
+        } else {
+         
+          setError(data.Error || "An unexpected error occurred.");
+          setResult([]); 
+        }
+      })
+      .catch((err) => {
+   
+        setError(err.message || "An unexpected error occurred.");
+        setResult([]); 
+      });
+  };
   return (
     <div>
       <p>Search Movie</p>
